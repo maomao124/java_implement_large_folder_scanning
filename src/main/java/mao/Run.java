@@ -468,7 +468,9 @@ public class Run
                 {
                     CalculateSubPath();
                     sort();
+                    showDetailed();
                     show();
+                    countSize();
                 }
                 else if (mode == 0)
                 {
@@ -478,6 +480,44 @@ public class Run
                 }
             }
         }));
+    }
+
+    /**
+     * 显示详细
+     */
+    private static void showDetailed()
+    {
+        if (detailed == 1)
+        {
+            for (Path subPath1 : subPaths)
+            {
+                System.out.println("子路径：" + subPath1.getPath());
+                sort(subPath1.getFilePaths());
+                show(subPath1.getFilePaths());
+                System.out.println();
+                System.out.println();
+                System.out.println();
+            }
+
+            System.out.println();
+            System.out.println();
+            System.out.println();
+            System.out.println();
+            System.out.println("总输出");
+            System.out.println();
+        }
+    }
+
+    private static void countSize()
+    {
+        double count = 0;
+        for (Path subPath : subPaths)
+        {
+            count = count + subPath.getFileTotalSizeMB();
+        }
+        System.out.println();
+        System.out.println();
+        System.out.printf("所有文件加起来的总大小：%.3fMB\n" , count);
     }
 
     public static void main(String[] args)
@@ -527,30 +567,10 @@ public class Run
         System.out.println();
 
         CalculateSubPath();
-
         sort();
-
-        if (detailed == 1)
-        {
-            for (Path subPath1 : subPaths)
-            {
-                System.out.println("子路径：" + subPath1.getPath());
-                sort(subPath1.getFilePaths());
-                show(subPath1.getFilePaths());
-                System.out.println();
-                System.out.println();
-                System.out.println();
-            }
-
-            System.out.println();
-            System.out.println();
-            System.out.println();
-            System.out.println();
-            System.out.println("总输出");
-            System.out.println();
-        }
-
+        showDetailed();
         show();
+        countSize();
 
         isNormalEnd = true;
     }
