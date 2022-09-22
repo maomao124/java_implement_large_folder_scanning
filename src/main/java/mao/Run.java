@@ -2,6 +2,7 @@ package mao;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
@@ -162,6 +163,20 @@ public class Run
         });
     }
 
+    /**
+     * 排序
+     */
+    private static void sort()
+    {
+        subPaths.sort(new Comparator<Path>()
+        {
+            @Override
+            public int compare(Path o1, Path o2)
+            {
+                return Double.compare(o2.getFileTotalSizeMB(), o1.getFileTotalSizeMB());
+            }
+        });
+    }
 
     /**
      * 显示
@@ -368,6 +383,7 @@ public class Run
             subP.setFilePaths(subFiles);
             String format = String.format("|%4d\t|  %s", (i + 1), subPath.get(i));
             System.out.println(format);
+            subPaths.add(subP);
             id = 0;
         }
 
@@ -375,9 +391,30 @@ public class Run
 
     }
 
+
     private static void CalculateSubPath()
     {
+        for (Path subPath : subPaths)
+        {
+            double fileTotalSizeMB = getTotalSizeMB(subPath.getFilePaths());
+            subPath.setFileTotalSizeMB(fileTotalSizeMB);
+        }
+    }
 
+    private static void show()
+    {
+        System.out.println("+------------------------------------------------------->");
+        System.out.println("|  序号  | 文件数量 |  总大小  |  子路径");
+        System.out.println("+------------------------------------------------------->");
+
+        for (int i = 0; i < subPaths.size(); i++)
+        {
+            double fileTotalSizeMB = getTotalSizeMB(subPaths.get(i).getFilePaths());
+            String format = String.format("|%5d\t|%5d\t|%8.3fMB\t|  %s", (i + 1), subPaths.get(i).getFilePaths().size(), fileTotalSizeMB, subPaths.get(i).getPath());
+            System.out.println(format);
+        }
+
+        System.out.println("+------------------------------------------------------->");
     }
 
     public static void main(String[] args)
@@ -444,7 +481,14 @@ public class Run
         mode = 1;
         initSubPath(subPath);
 
+        System.out.println();
+        System.out.println();
+
         CalculateSubPath();
+
+        sort();
+
+        show();
 
         isNormalEnd = true;
     }

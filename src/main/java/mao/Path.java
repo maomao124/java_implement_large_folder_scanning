@@ -2,6 +2,7 @@ package mao;
 
 import java.util.List;
 
+
 /**
  * Project name(项目名称)：java实现大文件夹扫描
  * Package(包名): mao
@@ -29,6 +30,11 @@ public class Path
     private List<FilePath> FilePaths;
 
     /**
+     * 所有文件加起来的总大小
+     */
+    private double fileTotalSizeMB;
+
+    /**
      * Instantiates a new Path.
      */
     public Path()
@@ -39,13 +45,15 @@ public class Path
     /**
      * Instantiates a new Path.
      *
-     * @param path      the path
-     * @param filePaths the file paths
+     * @param path            the path
+     * @param filePaths       the file paths
+     * @param fileTotalSizeMB the file total size mb
      */
-    public Path(String path, List<FilePath> filePaths)
+    public Path(String path, List<FilePath> filePaths, double fileTotalSizeMB)
     {
         this.path = path;
         FilePaths = filePaths;
+        this.fileTotalSizeMB = fileTotalSizeMB;
     }
 
     /**
@@ -92,6 +100,28 @@ public class Path
         return this;
     }
 
+    /**
+     * Gets file total size mb.
+     *
+     * @return the file total size mb
+     */
+    public double getFileTotalSizeMB()
+    {
+        return fileTotalSizeMB;
+    }
+
+    /**
+     * Sets file total size mb.
+     *
+     * @param fileTotalSizeMB the file total size mb
+     * @return the file total size mb
+     */
+    public Path setFileTotalSizeMB(double fileTotalSizeMB)
+    {
+        this.fileTotalSizeMB = fileTotalSizeMB;
+        return this;
+    }
+
     @Override
     public boolean equals(Object o)
     {
@@ -106,6 +136,10 @@ public class Path
 
         Path path1 = (Path) o;
 
+        if (Double.compare(path1.getFileTotalSizeMB(), getFileTotalSizeMB()) != 0)
+        {
+            return false;
+        }
         if (getPath() != null ? !getPath().equals(path1.getPath()) : path1.getPath() != null)
         {
             return false;
@@ -116,8 +150,12 @@ public class Path
     @Override
     public int hashCode()
     {
-        int result = getPath() != null ? getPath().hashCode() : 0;
+        int result;
+        long temp;
+        result = getPath() != null ? getPath().hashCode() : 0;
         result = 31 * result + (getFilePaths() != null ? getFilePaths().hashCode() : 0);
+        temp = Double.doubleToLongBits(getFileTotalSizeMB());
+        result = 31 * result + (int) (temp ^ (temp >>> 32));
         return result;
     }
 
@@ -128,6 +166,7 @@ public class Path
         final StringBuilder stringbuilder = new StringBuilder();
         stringbuilder.append("path：").append(path).append('\n');
         stringbuilder.append("FilePaths：").append(FilePaths).append('\n');
+        stringbuilder.append("fileTotalSizeMB：").append(fileTotalSizeMB).append('\n');
         return stringbuilder.toString();
     }
 }
