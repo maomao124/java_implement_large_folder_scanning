@@ -56,6 +56,11 @@ public class Run
      */
     private static volatile int mode = 0;
 
+    /**
+     * 详细 1为更详细的输出
+     */
+    private static int detailed = 0;
+
 
     /**
      * 得到文件绝对路径
@@ -247,6 +252,27 @@ public class Run
         }
     }
 
+    private static void loadDetailed(String[] args)
+    {
+        try
+        {
+            int detailed = Integer.parseInt(args[2]);
+            if (detailed != 0 && detailed != 1)
+            {
+                Run.detailed = 0;
+            }
+            if (detailed == 1)
+            {
+                Run.detailed = detailed;
+                System.out.println("显示更详细的信息");
+            }
+        }
+        catch (Exception e)
+        {
+            Run.detailed = 0;
+        }
+    }
+
     /**
      * 加载工作路径
      *
@@ -404,34 +430,26 @@ public class Run
     private static void show()
     {
         System.out.println("+------------------------------------------------------->");
-        System.out.println("|  序号  | 文件数量 |  总大小  |  子路径");
+        System.out.println("|  序号  | 文件数量 |    总大小    |  子路径");
         System.out.println("+------------------------------------------------------->");
 
         for (int i = 0; i < subPaths.size(); i++)
         {
             double fileTotalSizeMB = getTotalSizeMB(subPaths.get(i).getFilePaths());
-            String format = String.format("|%5d\t|%5d\t|%8.3fMB\t|  %s", (i + 1), subPaths.get(i).getFilePaths().size(), fileTotalSizeMB, subPaths.get(i).getPath());
+            String format = String.format("|%5d\t|%6d\t|%9.3fMB\t|  %s", (i + 1), subPaths.get(i).getFilePaths().size(), fileTotalSizeMB, subPaths.get(i).getPath());
             System.out.println(format);
         }
 
         System.out.println("+------------------------------------------------------->");
     }
 
-    public static void main(String[] args)
+    /**
+     * 设置关闭钩子
+     *
+     * @param main Thread
+     */
+    private static void setShutdownHook(Thread main)
     {
-        //System.out.println(Arrays.toString(args));
-
-        Thread main = Thread.currentThread();
-
-        System.out.println("第一个参数为排行榜最多显示的条数，只有当工作路径里没有子路径时才有用；第二个参数为工作目录");
-        System.out.println();
-
-        loadSize(args);
-
-        loadPath(args);
-
-        System.out.println();
-
         Runtime.getRuntime().addShutdownHook(new Thread(new Runnable()
         {
             @Override
@@ -445,9 +463,12 @@ public class Run
                 System.out.println();
                 System.out.println();
                 System.out.println("强行停止扫描！！！ 正在统计...");
+                System.out.println();
                 if (mode == 1)
                 {
-
+                    CalculateSubPath();
+                    sort();
+                    show();
                 }
                 else if (mode == 0)
                 {
@@ -457,6 +478,27 @@ public class Run
                 }
             }
         }));
+    }
+
+    public static void main(String[] args)
+    {
+        //System.out.println(Arrays.toString(args));
+
+        Thread main = Thread.currentThread();
+
+        System.out.println("第一个参数为排行榜最多显示的条数；第二个参数为工作目录；" +
+                "第三个参数为是否为详细模式，为1则输出更多的信息");
+        System.out.println();
+
+        loadSize(args);
+
+        loadPath(args);
+
+        loadDetailed(args);
+
+        System.out.println();
+
+        setShutdownHook(main);
 
         List<String> subPath = getPwdPathAllSubPath(Run.path);
 
@@ -487,6 +529,26 @@ public class Run
         CalculateSubPath();
 
         sort();
+
+        if (detailed == 1)
+        {
+            for (Path subPath1 : subPaths)
+            {
+                System.out.println("子路径：" + subPath1.getPath());
+                sort(subPath1.getFilePaths());
+                show(subPath1.getFilePaths());
+                System.out.println();
+                System.out.println();
+                System.out.println();
+            }
+
+            System.out.println();
+            System.out.println();
+            System.out.println();
+            System.out.println();
+            System.out.println("总输出");
+            System.out.println();
+        }
 
         show();
 
